@@ -31,7 +31,20 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-No API key needed for the public subgraph. For higher rate limits, get a Graph Studio API key and update `SUBGRAPH_URL` in `.env`.
+### API Key (required)
+
+The Graph hosted service was shut down in 2023. You need a free API key from The Graph Studio:
+
+1. Go to [thegraph.com/studio](https://thegraph.com/studio/)
+2. Sign in with your wallet or email
+3. Copy your API key from the dashboard
+4. Add it to `.env`:
+
+```
+GRAPH_API_KEY=your_api_key_here
+```
+
+The subgraph being queried is the official [Uniswap V3 subgraph](https://thegraph.com/explorer/subgraphs/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV) on the decentralized network.
 
 ## Usage
 
@@ -86,7 +99,7 @@ $ python main.py pools --limit 5
 from client import UniswapV3Client
 from utils import tick_to_price, sqrt_price_x96_to_price
 
-client = UniswapV3Client()
+client = UniswapV3Client()  # reads GRAPH_API_KEY from .env
 
 pools = client.get_top_pools(limit=10)
 for pool in pools:
