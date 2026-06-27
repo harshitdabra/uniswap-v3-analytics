@@ -16,9 +16,12 @@ from queries import (
 
 load_dotenv()
 
+# The Graph hosted service was shut down.
+# Use the decentralized network endpoint with a free API key from https://thegraph.com/studio/
+# Uniswap V3 subgraph ID: 5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV
 SUBGRAPH_URL = os.getenv(
     "SUBGRAPH_URL",
-    "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3",
+    "https://gateway.thegraph.com/api/{api_key}/subgraphs/id/5zvR82QoaXYFyDEKLZ9t6v9adgnptxYpKpSbxtgVENFV",
 )
 
 RETRY_ATTEMPTS = 3
@@ -26,11 +29,21 @@ RETRY_DELAY = 2
 
 
 class UniswapV3Client:
-    def __init__(self, url: str = SUBGRAPH_URL, timeout: int = 30):
-        self.url = url
+    def __init__(self, url: str = SUBGRAPH_URL, api_key: str = "", timeout: int = 30):
         self.timeout = timeout
         self.session = requests.Session()
         self.session.headers.update({"Content-Type": "application/json"})
+
+        key = api_key or os.getenv("GRAPH_API_KEY", "")
+        if "{api_key}" in url:
+            if not key:
+                raise ValueError(
+                    "GRAPH_API_KEY is not set.\n"
+                    "Get a free key at https://thegraph.com/studio/ and add it to .env:\n"
+                    "  GRAPH_API_KEY=your_key_here"
+                )
+            url = url.replace("{api_key}", key)
+        self.url = url
 
     def _query(self, gql: str) -> dict:
         payload = {"query": gql}
